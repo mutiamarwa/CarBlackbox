@@ -1,4 +1,4 @@
-#File name : CamDepan.py
+#File name : modcamdepan.py
 #Source code module for Raspberry Pi Camera that being used as front camera.
 
 #Import library
