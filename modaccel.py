@@ -1,4 +1,4 @@
-#File name : Accelerometer.py
+#File name : modaccel.py
 #Source code module for accelerometer device.
 
 #Import library
