@@ -37,34 +37,47 @@ class Accel(object):
         
         duration = 60/2 #minutes
         rate_accel = 100 #Hz
-        self.array_accel_x = [0] * duration * rate_accel
-        self.array_accel_y = [0] * duration * rate_accel
-        self.array_accel_z = [0] * duration * rate_accel
+        self.array_x = [0] * duration * rate_accel
+        self.array_y = [0] * duration * rate_accel
+        self.array_z = [0] * duration * rate_accel
 
     def read_data(self,counter) :	
         #Accelerometer data reading process
-        self.accel_x = read_word_2c(0x3b)
-        self.accel_y = read_word_2c(0x3d)
-        self.accel_z = read_word_2c(0x3f)
+        self.x = read_word_2c(0x3b)
+        self.y = read_word_2c(0x3d)
+        self.z = read_word_2c(0x3f)
             
-        self.accel_x_scaled = round((AccelX / 4096.0), 5)
-        self.accel_y_scaled = round((AccelY / 4096.0), 5)
-        self.accel_z_scaled = round((AccelZ / 4096.0), 5)
+        self.x_scaled = round((self.x / 4096.0), 5)
+        self.y_scaled = round((self.y / 4096.0), 5)
+        self.z_scaled = round((self.z / 4096.0), 5)
             
         #Array replacing process
-        self.array_accel_x[Counter] = AccelXScaled
-        self.array_accel_x[Counter] = AccelYScaled
-        self.array_accel_x[Counter] = AccelZScaled
+        self.array_x[Counter] = self.x_scaled 
+        self.array_y[Counter] = self.y_scaled 
+        self.array_z[Counter] = self.z_scaled 
 
-    def write_to_file(self,file,localtime):
+    def write_data(self,file,localtime):
         #Opening file for external write process
         #file = open(NamaFile, "w")
             
         #Writing process
         file.write(localtime)
         file.write("\tX: ")
-        file.write("%.5f\t"  % (AccelXScaled))
+        file.write("%.5f\t"  % (self.x_scaled))
         file.write("Y: ")
-        file.write("%.5f\t"  % (AccelYScaled))
+        file.write("%.5f\t"  % (self.y_scaled))
         file.write("Z: ")
-        file.write("%.5f\n"  % (AccelZScaled))
+        file.write("%.5f\n"  % (self.z_scaled))
+    
+    def write_array(self,file,counter,localtime):
+        #Opening file for external write process
+        #file = open(NamaFile, "w")
+            
+        #Writing process
+        file.write(localtime)
+        file.write("\tX: ")
+        file.write("%.5f\t"  % self.array_x[Counter])
+        file.write("Y: ")
+        file.write("%.5f\t"  % self.array_x[Counter])
+        file.write("Z: ")
+        file.write("%.5f\n"  % self.array_x[Counter])

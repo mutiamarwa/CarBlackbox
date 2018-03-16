@@ -47,7 +47,7 @@ class Gps(object):
 	
 	duration = 60/2 #minutes
 	rate_gps = 1
-	self.array_gps=[''] * duration * rate_gps
+	self.array_dataline=[''] * duration * rate_gps
 	
     #configurasi gps ublox
     def config_ublox(self) :
@@ -139,8 +139,12 @@ class Gps(object):
 	    self.dataline = ','.join(datalist)
 		
 	#Array replacing process
-	self.array_gps[counter]=self.dataline
+	self.array_dataline[counter]=self.dataline
 
-    def write_to_file(self,file):
+    def write_data(self,file):
 	file.write(self.dataline)
+	file.write("\n")
+
+    def write_data(self,file, counter):
+	file.write(self.array_dataline[counter])
 	file.write("\n")
