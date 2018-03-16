@@ -56,15 +56,15 @@ class Accel(object):
         self.array_accel_x[Counter] = AccelYScaled
         self.array_accel_x[Counter] = AccelZScaled
 
-    def TulisAkselero(file) :
-            #Opening file for external write process
-            #file = open(NamaFile, "w")
+    def write_to_file(self,file,localtime):
+        #Opening file for external write process
+        #file = open(NamaFile, "w")
             
-            #Writing process
-            file.write(localtime)
-            file.write("\tX: ")
-            file.write("%.5f\t"  % (AccelXScaled))
-            file.write("Y: ")
-            file.write("%.5f\t"  % (AccelYScaled))
-            file.write("Z: ")
-            file.write("%.5f\n"  % (AccelZScaled))
+        #Writing process
+        file.write(localtime)
+        file.write("\tX: ")
+        file.write("%.5f\t"  % (AccelXScaled))
+        file.write("Y: ")
+        file.write("%.5f\t"  % (AccelYScaled))
+        file.write("Z: ")
+        file.write("%.5f\n"  % (AccelZScaled))
