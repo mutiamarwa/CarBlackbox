@@ -1,7 +1,11 @@
 #File name : highlevel.py
 #High level source code for Car Blackbox device
 
+#Import library
 import modgps
 import modobd
-import modaccelero
-import mod
+import modaccel
+import modcamdepan
+
+#All the program initialization
+CamDepan.
