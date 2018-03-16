@@ -9,7 +9,7 @@ import datetime
 import time
 
 class CamDepan(object):
-    def def __init__(self):
+    def __init__:
         #Pi Camera initialization
         res_vertical= 1280
         res_horizontal= 720
@@ -26,7 +26,7 @@ class CamDepan(object):
             PiCamera.sharpness = 65
             PiCamera.exposure_mode = 'night'
 
-    def CamSimpan(VarKopi) :
+    def camera_simpan(VarKopi) :
             if (VarKopi = 1) :
                     Sumber = NamaFileSebelum
                     Tujuan = "/home/pi/Desktop/fix/PRIORITY_datafrontcam/%s" % (NamaFileSebelum)
@@ -38,13 +38,13 @@ class CamDepan(object):
                     copyfile(Sumber, Tujuan)
                     return 1
 
-    def CamRekamAwal :
+    def camera_rekam_awal :
             #Start recording process with Pi Camera
             NamaFile = "/home/pi/Desktop/fix/datafrontcam/Video_Depan_%s.h264" % (localtime)
             PiCamera.start_recording(NamaFile)
             CamTimeAwal = time.time()
             
-    def CamRekam :
+    def camera_rekam :
             #Initialization for next recording session
             CamTime = time.time()
             if ((CamTime - CamTimeAwal) > 60) :
@@ -55,7 +55,7 @@ class CamDepan(object):
                     CamTimeAwal = time.time()
                     CamSimpan(VarKopi)
 
-    def CamPrioritas :
+    def camera_prioritas :
             #Initial condition for the decisioning
             WaktuRekam = CamTime - CamTimeAwal
             
