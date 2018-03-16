@@ -9,7 +9,7 @@ import datetime
 import time
 
 class CamDepan(object):
-    def __init__:
+    def __init__(self):
         #Pi Camera initialization
         res_vertical= 1280
         res_horizontal= 720
@@ -20,54 +20,24 @@ class CamDepan(object):
                 
         #Pi Camera mode configuration
         PiCamera.exposure_mode = 'antishake'
-        if ((Jam < 6) and (Jam > 18)) :
+        if ((jam < 6) and (jam > 18)) :
             PiCamera.brightness = 60
             PiCamera.contrast = 30
             PiCamera.sharpness = 65
             PiCamera.exposure_mode = 'night'
 
-    def camera_simpan(VarKopi) :
-            if (VarKopi = 1) :
-                    Sumber = NamaFileSebelum
-                    Tujuan = "/home/pi/Desktop/fix/PRIORITY_datafrontcam/%s" % (NamaFileSebelum)
-                    copyfile(Sumber, Tujuan)
-                    return 0
-            elif (VarKopi = 2) :
-                    Sumber = NamaFileSebelum
-                    Tujuan = "/home/pi/Desktop/fix/PRIORITY_datafrontcam/%s" % (NamaFileSebelum)
-                    copyfile(Sumber, Tujuan)
-                    return 1
-
-    def camera_rekam_awal :
+    def start_record(self, localtime):
             #Start recording process with Pi Camera
-            NamaFile = "/home/pi/Desktop/fix/datafrontcam/Video_Depan_%s.h264" % (localtime)
-            PiCamera.start_recording(NamaFile)
-            CamTimeAwal = time.time()
+            file_name = "/home/pi/Desktop/fix/datafrontcam/Video_Depan_%s.h264" % (localtime)
+            PiCamera.start_recording(file_name)
+            init_time = time.time()
             
-    def camera_rekam :
+    def record(self, localtime):
             #Initialization for next recording session
-            CamTime = time.time()
-            if ((CamTime - CamTimeAwal) > 60) :
+            rec_time = time.time()
+            if ((rec_time - init_time) > 60) :
                     PiCamera.stop_recording()
-                    NamaFileSebelum = NamaFile
-                    NamaFile = "/home/pi/Desktop/fix/datafrontcam/Video_Depan_%s.h264" % (localtime)
+                    last_file_name = file_name
+                    file_name = "/home/pi/Desktop/fix/datafrontcam/Video_Depan_%s.h264" % (localtime)
                     PiCamera.start_recording(NamaFile)
-                    CamTimeAwal = time.time()
-                    CamSimpan(VarKopi)
-
-    def camera_prioritas :
-            #Initial condition for the decisioning
-            WaktuRekam = CamTime - CamTimeAwal
-            
-            #Condition when button pressed during the first 20 seconds of recording
-            if (WaktuRekam < 20) :
-                    Sumber = NamaFileSebelum
-                    Tujuan = "/home/pi/Desktop/fix/PRIORITY_datafrontcam/%s" % (NamaFileSebelum)
-                    copyfile(Sumber, Tujuan)
-                    return 1
-            #Condition when button pressed during the mid-recording session
-            elif ((WaktuRekam >= 20) and (WaktuRekam < 40)) :
-                    return 1
-            #Condition when button pressed during the last 20 seconds of recording
-            else:
-                    return 2
+                    init_time = time.time()
