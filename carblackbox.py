@@ -14,42 +14,58 @@ from cbaccel import Accel
 from cbobd import Obd
 from cbgps import Gps
 from cbcamdepan import CamDepan
+from picamera import PiCamera
+from picamera import Color
 
 if __name__ == '__main__':
     #Setup GPIO
+    accel=Accel()
+    obd=Obd()
+    gps=Gps()
+    
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP) #Pin GPIO 16 sebagai input (PUSHBUTTON APABILA KECELAKAAN)
     GPIO.setup(26,GPIO.OUT) #Pin GPIO 26 sebagai output (LED menyala apabila terjadi penulisan file saat tombol ditekan)
 
     GPIO.output(26,False) # Inisialisasi awal LED mati
 
-    Gps.config_ublox()
+    gps.config_ublox
     
     # Waktu saat ini
     temptime_init=time.time()
     localtime=time.asctime(time.localtime(time.time()))
 
     #Template penamaan file
-    namafile_accel="/home/pi/Desktop/Result/Normal/Accelero_%s.txt" % (localtime)
-    namafile_obd="/home/pi/Desktop/Result/Normal/OBD_%s .txt" % (localtime)
-    namafile_gps="/home/pi/Desktop/Result/Normal/GPS_%s.txt" % (localtime)
+    namafile_accel="/home/pi/Desktop/Result/Normal/accelero_%s.txt" % (localtime)
+    namafile_obd="/home/pi/Desktop/Result/Normal/obd_%s .txt" % (localtime)
+    namafile_gps="/home/pi/Desktop/Result/Normal/gps_%s.txt" % (localtime)
     #Buka file untuk menulis data akselerasi
-    file_accel=open(namafile,"w")
+    file_accel=open(namafile_accel,"w")
     file_obd=open(namafile_obd,"w")
     file_gps=open(namafile_gps,"w")
     file_gps.write("datetime,latitude,longitude,altitude,course,speed,sat\n")
-
+    
+    #inisialisasi variabel awal
+    temptime2=0
+    arraycount=0
+    arraycountgps=0
+    priority_status=0
     #Array waktu. Panjang array 300 untuk menyimpan data 30 detik
     array_time= [''] * 300
 
+    #Inisialisasi Pi Camera
+    """
+    camera=PiCamera()
+    camera.resolution = (1280,720)
     #start picamera
-    #namafile_frontcamera= "Video_Depan_%s.h264" % (localtime)
     namafile_frontcamera= "Video_Depan_%s" % (localtime)
     camera.start_recording("/home/pi/Desktop/Result/Normal/%s.h264" % (namafile_frontcamera))
     camtime_init=time.time()
     copycurrentfile=0
     copyforwardfile=0
     namafile_frontcamera_previous=namafile_frontcamera
+    """
+
     #Algoritma utama
     while (1):
         localtime=time.asctime(time.localtime(time.time()))
@@ -59,34 +75,34 @@ if __name__ == '__main__':
         inputValue=GPIO.input(16)   
         
         if (arraycount<300):
-            Accel.read_data()
-            Obd.read_data()
+            accel.read_data
+            obd.read_data(arraycount)
         else:
             arraycount=arraycount-300
-            Accel.read_data()
-            Obd.read_data()
+            accel.read_data(arraycount)
+            obd.read_data(arraycount)
                 
-        if (arraycountGPS<30):
-            Gps.read_data()
+        if (arraycountgps<30):
+            gps.read_data(arraycount)
         else:
-            arraycountGPS=arraycountGPS-30
-            Gps.read_data()
+            arraycountgps=arraycountgps-30
+            gps.read_data(arraycount)
             
         #camera.annotate_text = "%s                               X: %s  Y: %s  Z: %s\nRPM: %s  Speed: %s  Throttle: %s  Engine: %s  Coolant: %s\nLat: %s  Lon: %s" % (localtime,str(accel_xout_scaled), str(accel_yout_scaled),str(accel_yout_scaled),str(response1.value.to("rpm")),str(response2.value.to("kph")),str(response3.value.to("percent")),str(response4.value.to("percent")),str(response5.value.to("celsius")), str(gps_lat), str(gps_lon))
-        camera.annotate_text = "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(Accel.x_scaled), str(Accel.y_scaled),str(Accel.z_scaled),str(Obd.rpm.value),str(Obd.speed.value),str(Round(float(Obd.throttle.value),5)),str(Round(float(Obd.load.value),5)),str(Obd.coolant.value), str(Gps.lat), str(Gps.lon))
+        camera.annotate_text = "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(Round(float(obd.throttle.value),5)),str(Round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
         
         #print "%s                               X: %s  Y: %s  Z: %s\nRPM: %s  Speed: %s  Throttle: %s  Engine: %s  Coolant: %s\nLat: %s  Lon: %s" % (localtime,str(accel_xout_scaled), str(accel_yout_scaled),str(accel_yout_scaled),str(response1.value.to("rpm")),str(response2.value.to("kph")),str(response3.value.to("percent")),str(response4.value.to("percent")),str(response5.value.to("celsius")), str(gps_lat), str(gps_lon))
-        print "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(Accel.x_scaled), str(Accel.y_scaled),str(Accel.z_scaled),str(Obd.rpm.value),str(Obd.speed.value),str(Round(float(Obd.throttle.value),5)),str(Round(float(Obd.load.value),5)),str(Obd.coolant.value), str(Gps.lat), str(Gps.lon))
+        print "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(Round(float(obd.throttle.value),5)),str(Round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
         
         #Apabila pushbutton ditekan, dilakukan penulisan file ke file utama dan file prioritas
         if (priority_status==1):
-            Accel.write_data(file_accel,localtime)
-            Obd.write_data(file_obd,localtime)
-            Gps.write_data(file_gps,localtime)
+            accel.write_data(file_accel,localtime)
+            obd.write_data(file_obd,localtime)
+            gps.write_data(file_gps,localtime)
             
-            Accel.write_data(file_priority_accel,localtime)
-            Obd.write_data(file_priority_obd,localtime)
-            Gps.write_data(file_priority_gps,localtime)
+            accel.write_data(file_priority_accel,localtime)
+            obd.write_data(file_priority_obd,localtime)
+            gps.write_data(file_priority_gps,localtime)
             
             k=k+1
             
@@ -100,9 +116,9 @@ if __name__ == '__main__':
                 GPIO.output(26,False)
                 
         else:
-            Accel.write_data(file_accel,localtime)
-            Obd.write_data(file_obd,localtime)
-            Gps.write_data(file_gps,localtime)
+            accel.write_data(file_accel,localtime)
+            obd.write_data(file_obd,localtime)
+            gps.write_data(file_gps,localtime)
 
         
         #Membuka file baru apabila waktu perekaman telah mencapai 10 menit
@@ -111,9 +127,9 @@ if __name__ == '__main__':
             file_obd.close()
             file_gps.close()
             #counter=counter+1
-            namafile_accel="/home/pi/Desktop/Result/Normal/Accelero_%s.txt" % (localtime)
-            namafile_obd="/home/pi/Desktop/Result/Normal/OBD_%s .txt" % (localtime)
-            namafile_gps="/home/pi/Desktop/Result/Normal/GPS_%s.txt" % (localtime)
+            namafile_accel="/home/pi/Desktop/Result/Normal/accelero_%s.txt" % (localtime)
+            namafile_obd="/home/pi/Desktop/Result/Normal/obd_%s .txt" % (localtime)
+            namafile_gps="/home/pi/Desktop/Result/Normal/gps_%s.txt" % (localtime)
             
             file_accel=open(namafile_accel,"w")
             file_obd=open(namafile_obd,"w")
@@ -141,7 +157,7 @@ if __name__ == '__main__':
                 copyforwardfile=0
                            
         #Trigger perekaman file prioritas apabila button ditekan atau pembacaan akselerasi melebihi 1g
-        if ((inputValue==False) and ((temptime-temptime2)>3)) or (abs(Accel.array_x[arraycount]-Accel.array_x[arraycount-1])>2) or (abs(Accel.array_y[arraycount]-Accel.array_y[arraycount-1])>2) or (abs(Accel.array_z[arraycount]-Accel.array_z[arraycount-1])>2):
+        if ((inputValue==False) and ((temptime-temptime2)>3)) or (abs(accel.array_x[arraycount]-accel.array_x[arraycount-1])>2) or (abs(accel.array_y[arraycount]-accel.array_y[arraycount-1])>2) or (abs(accel.array_z[arraycount]-accel.array_z[arraycount-1])>2):
             priority_status=1
             
             # LED ON
@@ -149,12 +165,12 @@ if __name__ == '__main__':
             
             k=0
             #Penulisan file prioritas
-            namafile_accel_priority="/home/pi/Desktop/Result/Priority/PRIORITY_Accelero_%s.txt" %(localtime)
-            namafile_priority_obd="/home/pi/Desktop/Result/Priority/PRIORITY_OBD_%s .txt" % (localtime)
-            namafile_priority_gps="/home/pi/Desktop/Result/Priority/PRIORITY_GPS_%s.txt" %(localtime)
+            namafile_accel_priority="/home/pi/Desktop/Result/Priority/PRIORITY_accelero_%s.txt" %(localtime)
+            namafile_priority_obd="/home/pi/Desktop/Result/Priority/PRIORITY_obd_%s .txt" % (localtime)
+            namafile_priority_gps="/home/pi/Desktop/Result/Priority/PRIORITY_gps_%s.txt" %(localtime)
             file_priority_accel=open(namafile_priority,"w")
-            file_priority_obd=open(namafile_priority_OBD,"w")
-            file_priority_gps=open(namafile_priority_GPS,"w")
+            file_priority_obd=open(namafile_priority_obd,"w")
+            file_priority_gps=open(namafile_priority_gps,"w")
             if ((inputValue==False) and ((temptime-temptime2)>3)):
                 file_priority_accel.write("Button pressed at %s\n" %(localtime))
                 file_priority_obd.write("Button pressed at %s\n" %(localtime))
@@ -168,10 +184,10 @@ if __name__ == '__main__':
             i=0
             j=0
             for i in range(299,0,-1):
-                Accel.write_array(file_priority_accel,arraycount-i,array_time[arraycount-i])
-                Obd.write_array(file_priority_obd,arraycount-i,array_time[arraycount-i])
+                accel.write_array(file_priority_accel,arraycount-i,array_time[arraycount-i])
+                obd.write_array(file_priority_obd,arraycount-i,array_time[arraycount-i])
             for j in range (29, 0, -1):
-                Gps.write_array(file_priority_gps,arraycountGPS-i,array_time[arraycount-i])
+                gps.write_array(file_priority_gps,arraycountgps-i,array_time[arraycount-i])
                 
             print("Button press")
             temptime2=time.time()
@@ -188,7 +204,7 @@ if __name__ == '__main__':
                 copycurrentfile=1
                 copynextfile=1
                 
-        arraycountGPS=arraycountGPS+1
+        arraycountgps=arraycountgps+1
         arraycount=arraycount+1
         #time.sleep(0.1)
         #camera.wait_recording(0.1)

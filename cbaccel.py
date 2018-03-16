@@ -21,8 +21,7 @@ def read_word_2c(adr):
     if (val >= 0x8000):
         return -((65535 - val) + 1)
     else:
-        return valdef read_byte(adr) :
-    return bus.read_byte_data(address, adr)
+        return val
 
 class Accel(object):
     def __init__(self):
@@ -52,9 +51,9 @@ class Accel(object):
         self.z_scaled = round((self.z / 4096.0), 5)
             
         #Array replacing process
-        self.array_x[Counter] = self.x_scaled 
-        self.array_y[Counter] = self.y_scaled 
-        self.array_z[Counter] = self.z_scaled 
+        self.array_x[counter] = self.x_scaled 
+        self.array_y[counter] = self.y_scaled 
+        self.array_z[counter] = self.z_scaled 
 
     def write_data(self,file,localtime):
         #Opening file for external write process

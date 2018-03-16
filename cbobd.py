@@ -5,14 +5,14 @@
 import time
 import obd
 
-class OBD:
+class Obd(object):
 	def __init__(self) :
     		self.array_rpm = [''] * 300
 		self.array_speed = [''] * 300
 		self.array_throttle = [''] * 300
 		self.array_load = [''] * 300
 		self.array_coolant = [''] * 300
-		connection = obd.OBD()
+		self.connection = obd.OBD()
     
 	def read_data(self,counter) :
     		#Assign variables for each of the OBD data
@@ -22,11 +22,11 @@ class OBD:
     		cmd4 = obd.commands.ENGINE_LOAD
     		cmd5 = obd.commands.COOLANT_TEMP
 	
-    		self.rpm = connection.query(cmd1)
-    		self.speed = connection.query(cmd2)
-    		self.throttle = connection.query(cmd3)
-    		self.load = connection.query(cmd4)
-    		self.coolant = connection.query(cmd5)
+    		self.rpm = self.connection.query(cmd1)
+    		self.speed = self.connection.query(cmd2)
+    		self.throttle = self.connection.query(cmd3)
+    		self.load = self.connection.query(cmd4)
+    		self.coolant = self.connection.query(cmd5)
     
     		self.array_rpm[counter]=self.rpm.value.to("rpm")
     		self.array_speed[counter]=self.speed.value.to("kph")
