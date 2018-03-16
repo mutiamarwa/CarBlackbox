@@ -5,8 +5,8 @@
 import time
 import obd
 
-class Obd:
-	def init_obd :
+class OBD:
+	def __init__(self) :
     		ArrayOBDRPM = [''] * 300
 		ArrayOBDSpeed = [''] * 300
 		ArrayOBDThrottle = [''] * 300
@@ -14,7 +14,7 @@ class Obd:
 		ArrayOBDCoolant = [''] * 300
 		connection = obd.OBD()
     
-	def baca_obd(Counter) :
+	def read_data(self,counter) :
     		#Assign variables for each of the OBD data
   	  	cmd1 = obd.commands.RPM
     		cmd2 = obd.commands.SPEED
@@ -28,13 +28,13 @@ class Obd:
     		response4 = connection.query(cmd4)
     		response5 = connection.query(cmd5)
     
-    		ArrayOBDRPM[Counter]=response1.value.to("rpm")
-    		ArrayOBDSpeed[Counter]=response2.value.to("kph")
-    		ArrayOBDThrottle[Counter]=response3.value.to("percent")
-    		ArrayOBDLoad[Counter]=response4.value.to("percent")
-    		ArrayOBDCoolant[Counter]=response5.value.to("celsius")
+    		ArrayOBDRPM[counter]=response1.value.to("rpm")
+    		ArrayOBDSpeed[counter]=response2.value.to("kph")
+    		ArrayOBDThrottle[counter]=response3.value.to("percent")
+    		ArrayOBDLoad[counter]=response4.value.to("percent")
+    		ArrayOBDCoolant[counter]=response5.value.to("celsius")
 	
-	def tulis_data_obd(file) :
+	def write_to_file(self, file, localtime) :
     		#Opening file for external write process
     		#file = open(NamaFile, "w")
 	
