@@ -1,4 +1,4 @@
-#File name : GPS.py
+#File name : modgps.py
 #Source code module for GPS device.
 
 #Import library
