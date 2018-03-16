@@ -1,4 +1,4 @@
-#File name : OBD.py
+#File name : modobd.py
 #Source code module for OBD device.
 
 #Import library
