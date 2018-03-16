@@ -8,4 +8,4 @@ import modaccel
 import modcamdepan
 
 #All the program initialization
-CamDepan.
+modcamdepan.__init__()
