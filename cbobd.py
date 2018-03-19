@@ -13,6 +13,8 @@ class Obd(object):
 		self.array_load = [''] * 300
 		self.array_coolant = [''] * 300
 		self.connection = obd.OBD()
+		self.rpm_before = 0
+		self.throttle_before = 0
     
 	def read_data(self,counter) :
     		#Assign variables for each of the OBD data
@@ -33,6 +35,28 @@ class Obd(object):
     		self.array_throttle[counter]=self.throttle.value.to("percent")
     		self.array_load[counter]=self.load.value.to("percent")
     		self.array_coolant[counter]=self.coolant.value.to("celsius")
+	
+	def driver_category(self, counter) :
+		#Develop initial variable
+		self.array_rpm[counter] = rpm_now
+		self.array_speed[counter] = speed_now
+		self.array_throttle[counter] = throttle_now
+		
+		#Calculation process for further categorization
+		rpm_change = abs(rpm_now - self.rpm_before)
+		throttle_change = abs(throttle_now - self.throttle_before)
+		ratio_speed_rpm = (speed_now/220)/(rpm_now/8000)
+		ratio_throttle_rpm = (throttle_change/max(self.array_throttle))/(rpm_change/max(self.array_rpm)
+										 
+		#Decide between good or bad driver
+		if (ratio_speed_rpm > 0.9) and (ratio_speed_rpm < 1.3) and (ratio_throttle_rpm > 0.9) and (ratio_throttle_rpm < 1.3) and (load > 20) and (load < 50):
+			print('Good Driver')
+		else:
+			print('Bad Driver')
+		
+		#After process configuration
+		self.rpm_before = rpm_now
+		self.throttle_before = throttle_now
 	
 	def write_data(self, file, localtime) :
     		#Opening file for external write process
