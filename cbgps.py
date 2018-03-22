@@ -43,7 +43,7 @@ class Gps(object):
 	self.lat = 0
 	self.lon = 0
 	self.dataline = ''
-	tf = TimezoneFinder()
+	self.tf = TimezoneFinder()
 	
 	duration = 60/2 #minutes
 	rate_gps = 1
@@ -88,9 +88,9 @@ class Gps(object):
 	    if (gprmcok == 1):
 		gps_lat = round(msg.latitude,5)
 		gps_lon = round(msg.longitude,5)
-		gps_tz = tf.timezone_at(lng = gps_lon, lat = gps_lat)
+		gps_tz = self.tf.timezone_at(lng = self.lon, lat = self.lat)
 		tz = timezone(gps_tz)
-		gps_datetime_aware = gps_datetime.replace(tzinfo = utc)
+		gps_datetime_aware = self.datetime.replace(tzinfo = utc)
 		gps_datetime_local = gps_datetime_aware.astimezone(tz)
 		self.datetime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
 		return self.datetime
@@ -100,17 +100,17 @@ class Gps(object):
 	self.data = self.serialcom.readline()
 	#self.data ="$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
 	#print data
-	if (data.startswith("$GPRMC")):
+	if (self.data.startswith("$GPRMC")):
 	    msggps = pynmea2.parse(self.data)
 	    #print repr(msg)
 	    self.datetime = msggps.datetime
 	    self.lat = round(msggps.latitude,5)
 	    self.lon = round(msggps.longitude,5)
-	    self.tz = tf.timezone_at(lng=gps_lon, lat=gps_lat)
+	    self.tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
 	    self.speed = msggps.spd_over_grnd
 	    self.course = msggps.true_course
 	    self.gprmc_status = msggps.is_valid
-	elif data.startswith("$GPGGA"):
+	elif self.data.startswith("$GPGGA"):
 	    msggps = pynmea2.parse(self.data)
 	    self.alt = msggps.altitude
 	    self.sats = msggps.num_sats
@@ -118,10 +118,12 @@ class Gps(object):
 	else:
 	    pass
 		
-	if ((gprmcok == 1) and (gpggaok == 1 )):
-	    gps_tz = tf.timezone_at(lng=gps_lon, lat=gps_lat)
+	if ((self.gprmc_status == 1) and (self.gpgga_status == 1 )):
+	    gps_tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
 	    tz = timezone(gps_tz)
-	    gps_datetime_aware = gps_datetime.replace(tzinfo=utc)
+	    #gps_datetime_aware = self.datetime.replace(tzinfo=utc)
+	    tzinfo = utc
+	    gps_datetime_aware = self.datetime.replace(tz)
 	    gps_datetime_local = gps_datetime_aware.astimezone(tz)
 	    self.datetime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
 	    
@@ -145,6 +147,6 @@ class Gps(object):
 	file.write(self.dataline)
 	file.write("\n")
 
-    def write_data(self,file, counter):
+    def write_array(self,file, counter):
 	file.write(self.array_dataline[counter])
 	file.write("\n")

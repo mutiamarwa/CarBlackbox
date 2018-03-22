@@ -46,7 +46,7 @@ class Obd(object):
 		rpm_change = abs(rpm_now - self.rpm_before)
 		throttle_change = abs(throttle_now - self.throttle_before)
 		ratio_speed_rpm = (speed_now/220)/(rpm_now/8000)
-		ratio_throttle_rpm = (throttle_change/max(self.array_throttle))/(rpm_change/max(self.array_rpm)
+		ratio_throttle_rpm = (throttle_change/max(self.array_throttle))/(rpm_change/max(self.array_rpm))
 										 
 		#Decide between good or bad driver
 		if (ratio_speed_rpm > 0.9) and (ratio_speed_rpm < 1.3) and (ratio_throttle_rpm > 0.9) and (ratio_throttle_rpm < 1.3) and (load > 20) and (load < 50):

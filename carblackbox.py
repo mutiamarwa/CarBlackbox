@@ -54,7 +54,6 @@ if __name__ == '__main__':
     array_time= [''] * 300
 
     #Inisialisasi Pi Camera
-    """
     camera=PiCamera()
     camera.resolution = (1280,720)
     #start picamera
@@ -64,7 +63,6 @@ if __name__ == '__main__':
     copycurrentfile=0
     copyforwardfile=0
     namafile_frontcamera_previous=namafile_frontcamera
-    """
 
     #Algoritma utama
     while (1):
@@ -75,7 +73,7 @@ if __name__ == '__main__':
         inputValue=GPIO.input(16)   
         
         if (arraycount<300):
-            accel.read_data
+            accel.read_data(arraycount)
             obd.read_data(arraycount)
         else:
             arraycount=arraycount-300
@@ -87,12 +85,12 @@ if __name__ == '__main__':
         else:
             arraycountgps=arraycountgps-30
             gps.read_data(arraycount)
-            
+        
         #camera.annotate_text = "%s                               X: %s  Y: %s  Z: %s\nRPM: %s  Speed: %s  Throttle: %s  Engine: %s  Coolant: %s\nLat: %s  Lon: %s" % (localtime,str(accel_xout_scaled), str(accel_yout_scaled),str(accel_yout_scaled),str(response1.value.to("rpm")),str(response2.value.to("kph")),str(response3.value.to("percent")),str(response4.value.to("percent")),str(response5.value.to("celsius")), str(gps_lat), str(gps_lon))
-        camera.annotate_text = "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(Round(float(obd.throttle.value),5)),str(Round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
+        camera.annotate_text = "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(round(float(obd.throttle.value),5)),str(round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
         
         #print "%s                               X: %s  Y: %s  Z: %s\nRPM: %s  Speed: %s  Throttle: %s  Engine: %s  Coolant: %s\nLat: %s  Lon: %s" % (localtime,str(accel_xout_scaled), str(accel_yout_scaled),str(accel_yout_scaled),str(response1.value.to("rpm")),str(response2.value.to("kph")),str(response3.value.to("percent")),str(response4.value.to("percent")),str(response5.value.to("celsius")), str(gps_lat), str(gps_lon))
-        print "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(Round(float(obd.throttle.value),5)),str(Round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
+        print "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(round(float(obd.throttle.value),5)),str(round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
         
         #Apabila pushbutton ditekan, dilakukan penulisan file ke file utama dan file prioritas
         if (priority_status==1):
@@ -102,7 +100,7 @@ if __name__ == '__main__':
             
             accel.write_data(file_priority_accel,localtime)
             obd.write_data(file_priority_obd,localtime)
-            gps.write_data(file_priority_gps,localtime)
+            gps.write_data(file_priority_gps)
             
             k=k+1
             
@@ -118,7 +116,7 @@ if __name__ == '__main__':
         else:
             accel.write_data(file_accel,localtime)
             obd.write_data(file_obd,localtime)
-            gps.write_data(file_gps,localtime)
+            gps.write_data(file_gps)
 
         
         #Membuka file baru apabila waktu perekaman telah mencapai 10 menit

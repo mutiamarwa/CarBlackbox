@@ -6,49 +6,49 @@ import smbus
 import math
 import time
 
-#Function to conduct accelerometer reading process
-def read_byte(adr):
-    return bus.read_byte_data(address, adr)
-
-def read_word(adr):
-    high = bus.read_byte_data(address, adr)
-    low = bus.read_byte_data(address, adr+1)
-    val = (high << 8) + low
-    return val
-
-def read_word_2c(adr):
-    val = read_word(adr)
-    if (val >= 0x8000):
-        return -((65535 - val) + 1)
-    else:
-        return val
-
 class Accel(object):
     def __init__(self):
         #Power management for turning on the accelerometer
-        power_mgmt_1 = 0x6b
-        power_mgmt_2 = 0x6c
-        bus = smbus.SMBus(1) # or bus = smbus.SMBus(1) for Revision 2 boards
-        address = 0x68       # This is the address value read via the i2cdetect command
+        self.power_mgmt_1 = 0x6b
+        self.power_mgmt_2 = 0x6c
+        self.bus = smbus.SMBus(1) # or bus = smbus.SMBus(1) for Revision 2 boards
+        self.address = 0x68       # This is the address value read via the i2cdetect command
 
-        bus.write_byte_data(address, power_mgmt_1, 0)#wake the 6050 up as it starts in sleep mode
-        bus.write_byte_data(address, 0x1c,0x10) #penulisan register untuk sensitivitas akselerometer
+        self.bus.write_byte_data(self.address, self.power_mgmt_1, 0)#wake the 6050 up as it starts in sleep mode
+        self.bus.write_byte_data(self.address, 0x1c,0x10) #penulisan register untuk sensitivitas akselerometer
         
         duration = 60/2 #minutes
         rate_accel = 100 #Hz
         self.array_x = [0] * duration * rate_accel
         self.array_y = [0] * duration * rate_accel
         self.array_z = [0] * duration * rate_accel
+        
+    #Function to conduct accelerometer reading process
+    def read_byte(self,adr):
+        return self.bus.read_byte_data(self.address, adr)
+
+    def read_word(self,adr):
+        high = self.bus.read_byte_data(self.address, adr)
+        low = self.bus.read_byte_data(self.address, adr+1)
+        val = (high << 8) + low
+        return val
+
+    def read_word_2c(self,adr):
+        val = self.read_word(adr)
+        if (val >= 0x8000):
+            return -((65535 - val) + 1)
+        else:
+            return val
 
     def read_data(self,counter) :	
         #Accelerometer data reading process
-        self.x = read_word_2c(0x3b)
-        self.y = read_word_2c(0x3d)
-        self.z = read_word_2c(0x3f)
+        self.xraw = self.read_word_2c(0x3b)
+        self.yraw = self.read_word_2c(0x3d)
+        self.zraw = self.read_word_2c(0x3f)
             
-        self.x_scaled = round((self.x / 4096.0), 5)
-        self.y_scaled = round((self.y / 4096.0), 5)
-        self.z_scaled = round((self.z / 4096.0), 5)
+        self.x_scaled = round((self.xraw / 4096.0), 5)
+        self.y_scaled = round((self.yraw / 4096.0), 5)
+        self.z_scaled = round((self.zraw / 4096.0), 5)
             
         #Array replacing process
         self.array_x[counter] = self.x_scaled 
