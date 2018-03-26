@@ -58,6 +58,7 @@ if __name__ == '__main__':
     camera.resolution = (1280,720)
     #start picamera
     namafile_frontcamera= "Video_Depan_%s" % (localtime)
+    camera.start_preview()
     camera.start_recording("/home/pi/Desktop/Result/Normal/%s.h264" % (namafile_frontcamera))
     camtime_init=time.time()
     copycurrentfile=0

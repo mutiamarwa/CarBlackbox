@@ -44,9 +44,10 @@ class Gps(object):
 	self.lon = 0
 	self.dataline = ''
 	self.tf = TimezoneFinder()
+	self.tzinfo = utc
 	
 	duration = 60/2 #minutes
-	rate_gps = 1
+	rate_gps = 10
 	self.array_dataline=[''] * duration * rate_gps
 	
     #configurasi gps ublox
@@ -90,7 +91,7 @@ class Gps(object):
 		gps_lon = round(msg.longitude,5)
 		gps_tz = self.tf.timezone_at(lng = self.lon, lat = self.lat)
 		tz = timezone(gps_tz)
-		gps_datetime_aware = self.datetime.replace(tzinfo = utc)
+		gps_datetime_aware = self.datetime.replace(tzinfo=utc)
 		gps_datetime_local = gps_datetime_aware.astimezone(tz)
 		self.datetime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
 		return self.datetime
@@ -120,12 +121,11 @@ class Gps(object):
 		
 	if ((self.gprmc_status == 1) and (self.gpgga_status == 1 )):
 	    gps_tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
-	    tz = timezone(gps_tz)
+	    #tz = timezone(gps_tz)
 	    #gps_datetime_aware = self.datetime.replace(tzinfo=utc)
-	    tzinfo = utc
-	    gps_datetime_aware = self.datetime.replace(tz)
-	    gps_datetime_local = gps_datetime_aware.astimezone(tz)
-	    self.datetime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
+	    #gps_datetime_aware = self.datetime.replace(tzinfo=utc)
+	    #gps_datetime_local = gps_datetime_aware.astimezone(tz)
+	    #self.datetime = gps_datetime_local.strftime('%Y-u%m-%d %H:%M:%S.%f')[:-4]
 	    
 	    datalist = []
 	    datalist.append(str(self.datetime))
