@@ -36,7 +36,7 @@ class Obd(object):
     		self.array_load[counter]=self.load.value.to("percent")
     		self.array_coolant[counter]=self.coolant.value.to("celsius")
 	
-	def driver_category(self, counter) :
+	def driver_category(self, counter) :		
 		#Develop initial variable
 		self.array_rpm[counter] = rpm_now
 		self.array_speed[counter] = speed_now
@@ -57,6 +57,32 @@ class Obd(object):
 		#After process configuration
 		self.rpm_before = rpm_now
 		self.throttle_before = throttle_now
+	
+	def driver_behavior(self, counter) :
+		#Develop initial variable
+		self.array_speed[counter] = speed_now
+		self.array_rpm[counter] = rpm_now
+		
+		#Overspeed
+		if (speed_now > 100):
+			self.counter_speed = self.counter_speed + 1
+		else:
+			self.counter_speed = 0
+		if (self.counter_speed == 50):
+			print("Overspeed")
+		
+		#High RPM
+		if (rpm_now > 4000):
+			print("High RPM")
+		
+		#Idle time
+		if (speed_now == 0):
+			self.counter_speed = self.counter_speed + 1
+		else:
+			self.counter_speed = 0
+		if (self.counter_speed == 3000):
+			print("Idle")
+		
 	
 	def write_data(self, file, localtime) :
     		#Opening file for external write process
