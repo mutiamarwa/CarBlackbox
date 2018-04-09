@@ -13,6 +13,7 @@ class Accel(object):
         self.power_mgmt_2 = 0x6c
         self.bus = smbus.SMBus(1) # or bus = smbus.SMBus(1) for Revision 2 boards
         self.address = 0x68       # This is the address value read via the i2cdetect command
+        self.resultan_before = 0
 
         self.bus.write_byte_data(self.address, self.power_mgmt_1, 0)#wake the 6050 up as it starts in sleep mode
         self.bus.write_byte_data(self.address, 0x1c,0x10) #penulisan register untuk sensitivitas akselerometer
@@ -80,3 +81,15 @@ class Accel(object):
         file.write("%.5f\t"  % self.array_x[Counter])
         file.write("Z: ")
         file.write("%.5f\n"  % self.array_x[Counter])
+        
+    def driver_behavior_accel(self,counter):
+        x_now = self.array_x[counter]
+        y_now = self.array_y[counter] 
+        self.resultan = sqrt((x_now*x_now)+(y_now*y_now))
+        if (self.resultan-self.resultan_before)>0.33:
+            print("Aggresive Start")
+        elsif (self.resultan-self.resultan_before)<-0.5:
+            print("Hard Braking")
+      
+        self.resultan_before = self.resultan
+        
