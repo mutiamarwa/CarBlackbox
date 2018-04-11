@@ -24,23 +24,21 @@ if __name__ == '__main__':
     gps=Gps()
     
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP) #Pin GPIO 16 sebagai input pushbutton (PUSHBUTTON APABILA KECELAKAAN)
+    GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP) #Pin GPIO 16 sebagai input (PUSHBUTTON APABILA KECELAKAAN)
     GPIO.setup(26,GPIO.OUT) #Pin GPIO 26 sebagai output (LED menyala apabila terjadi penulisan file saat tombol ditekan)
-    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_UP) #Pin GPIO 11 sebagai input power supply
-    
+
     GPIO.output(26,False) # Inisialisasi awal LED mati
 
     gps.config_ublox
     
     # Waktu saat ini
     temptime_init=time.time()
-    #localtime=time.asctime(time.localtime(time.time()))
-    localtime=time.strftime('%Y%m%d %H%M%S')
+    localtime=time.asctime(time.localtime(time.time()))
 
     #Template penamaan file
-    namafile_accel="/home/pi/Desktop/Result/Normal/Accelero/accelero_%s.txt" % (localtime)
-    namafile_obd="/home/pi/Desktop/Result/Normal/OBD/obd_%s .txt" % (localtime)
-    namafile_gps="/home/pi/Desktop/Result/Normal/GPS/gps_%s.txt" % (localtime)
+    namafile_accel="/home/pi/Desktop/Result/Normal/accelero_%s.txt" % (localtime)
+    namafile_obd="/home/pi/Desktop/Result/Normal/obd_%s .txt" % (localtime)
+    namafile_gps="/home/pi/Desktop/Result/Normal/gps_%s.txt" % (localtime)
     #Buka file untuk menulis data akselerasi
     file_accel=open(namafile_accel,"w")
     file_obd=open(namafile_obd,"w")
@@ -58,28 +56,10 @@ if __name__ == '__main__':
     #Inisialisasi Pi Camera
     camera=PiCamera()
     camera.resolution = (1280,720)
-    
-    now=datetime.datetime.now()
-    jam=now.hour
-    if ((jam>6)and(jam<18)):
-        camera.start_preview()
-        camera.exposure_mode = 'antishake'
-        camera.annotate_text_size = 25
-        camera.annotate_foreground = Color('black')
-        camera.annotate_background = Color('white')
-    else:
-    #NIGHT MODE
-        camera.brightness = 60
-        camera.contrast = 30
-        camera.sharpness = 65
-        camera.exposure_mode = 'night'
-        camera.start_preview()
-        #camera.exposure_mode = 'nightpreview'
-    
     #start picamera
     namafile_frontcamera= "Video_Depan_%s" % (localtime)
     camera.start_preview()
-    camera.start_recording("/home/pi/Desktop/Result/Normal/Frontcam/%s.h264" % (namafile_frontcamera))
+    camera.start_recording("/home/pi/Desktop/Result/Normal/%s.h264" % (namafile_frontcamera))
     camtime_init=time.time()
     copycurrentfile=0
     copyforwardfile=0
@@ -87,13 +67,11 @@ if __name__ == '__main__':
 
     #Algoritma utama
     while (1):
-        #localtime=time.asctime(time.localtime(time.time()))
-        localtime=time.strftime('%Y%m%d %H%M%S')
+        localtime=time.asctime(time.localtime(time.time()))
         #localtime = read_datetimegps()
         temptime=time.time()
         camtime=time.time()
-        inputButton=GPIO.input(16)
-        inputRelay=GPIO.input(11)
+        inputValue=GPIO.input(16)   
         
         if (arraycount<300):
             accel.read_data(arraycount)
@@ -109,14 +87,11 @@ if __name__ == '__main__':
             arraycountgps=arraycountgps-30
             gps.read_data(arraycount)
         
-        obd.driver_behavior_obd(arraycount)
-        accel.driver_behavior_accel(arraycount)
-        
         #camera.annotate_text = "%s                               X: %s  Y: %s  Z: %s\nRPM: %s  Speed: %s  Throttle: %s  Engine: %s  Coolant: %s\nLat: %s  Lon: %s" % (localtime,str(accel_xout_scaled), str(accel_yout_scaled),str(accel_yout_scaled),str(response1.value.to("rpm")),str(response2.value.to("kph")),str(response3.value.to("percent")),str(response4.value.to("percent")),str(response5.value.to("celsius")), str(gps_lat), str(gps_lon))
-        camera.annotate_text = "%s  X: %s  Y: %s  Z: %s  Lat: %s  Lon: %s\nRPM: %s Speed: %s Throttle: %s %% Engine: %s %% Coolant: %s\n%s %s %s %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(gps.lat), str(gps.lon),str(obd.rpm.value),str(obd.speed.value),str(round(float(obd.throttle.value),5)),str(round(float(obd.load.value),5)),str(obd.coolant.value), obd.condition_rpm,obd.condition_speed,obd.condition_idle,accel.condition_accel)
+        camera.annotate_text = "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(round(float(obd.throttle.value),5)),str(round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
         
         #print "%s                               X: %s  Y: %s  Z: %s\nRPM: %s  Speed: %s  Throttle: %s  Engine: %s  Coolant: %s\nLat: %s  Lon: %s" % (localtime,str(accel_xout_scaled), str(accel_yout_scaled),str(accel_yout_scaled),str(response1.value.to("rpm")),str(response2.value.to("kph")),str(response3.value.to("percent")),str(response4.value.to("percent")),str(response5.value.to("celsius")), str(gps_lat), str(gps_lon))
-        print "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(round(float(obd.throttle.value),5)),str(round(float(obd.load.value),5)),str(obd.coolant), str(gps.lat), str(gps.lon))
+        print "%s                       X: %s  Y: %s  Z: %s\nRPM: %s rpm Speed: %s kph Throttle: %s %% Engine: %s %% Coolant: %s C\nLat: %s  Lon: %s" % (localtime,str(accel.x_scaled), str(accel.y_scaled),str(accel.z_scaled),str(obd.rpm.value),str(obd.speed.value),str(round(float(obd.throttle.value),5)),str(round(float(obd.load.value),5)),str(obd.coolant.value), str(gps.lat), str(gps.lon))
         
         #Apabila pushbutton ditekan, dilakukan penulisan file ke file utama dan file prioritas
         if (priority_status==1):
@@ -130,40 +105,30 @@ if __name__ == '__main__':
             
             k=k+1
             
-            
-            
             #Handling untuk file prioritas
             if (k>=300):
-                file_priority_accel.close()
+                file_priority.close()
                 file_priority_obd.close()
                 file_priority_gps.close()
+                priority_status=0
                 # LED OFF
                 GPIO.output(26,False)
-                if (inputRelay==True):
-                    os.system("sudo shutdown now")
-                    
-                priority_status=0
                 
         else:
             accel.write_data(file_accel,localtime)
             obd.write_data(file_obd,localtime)
             gps.write_data(file_gps)
-            if (inputRelay==True):
-                file_accel.close()
-                file_obd.close()
-                file_gps.close()
-                os.system("sudo shutdown now")
 
         
         #Membuka file baru apabila waktu perekaman telah mencapai 10 menit
         if ((temptime-temptime_init)>600):
-            file_accel.close()
+            file.close()
             file_obd.close()
             file_gps.close()
             #counter=counter+1
-            namafile_accel="/home/pi/Desktop/Result/Normal/Accel/accelero_%s.txt" % (localtime)
-            namafile_obd="/home/pi/Desktop/Result/Normal/OBD/obd_%s .txt" % (localtime)
-            namafile_gps="/home/pi/Desktop/Result/Normal/GPS/gps_%s.txt" % (localtime)
+            namafile_accel="/home/pi/Desktop/Result/Normal/accelero_%s.txt" % (localtime)
+            namafile_obd="/home/pi/Desktop/Result/Normal/obd_%s .txt" % (localtime)
+            namafile_gps="/home/pi/Desktop/Result/Normal/gps_%s.txt" % (localtime)
             
             file_accel=open(namafile_accel,"w")
             file_obd=open(namafile_obd,"w")
@@ -176,14 +141,14 @@ if __name__ == '__main__':
             camera.stop_recording()
             namafile_frontcamera_previous=namafile_frontcamera
             namafile_frontcamera= "Video_Depan_%s" % (localtime)
-            camera.start_recording("/home/pi/Desktop/Result/Normal/Frontcam/%s.h264" % (namafile_frontcamera))
+            camera.start_recording("/home/pi/Desktop/Result/Normal/%s.h264" % (namafile_frontcamera))
             
             
             camtime_init=time.time()
             if (copycurrentfile==1):
                 dest_file = namafile_frontcamera_previous
-                source = "/home/pi/Desktop/Result/Normal/Frontcam/%s.h264" % (namafile_frontcamera_previous)
-                destination = "/home/pi/Desktop/Result/Priority/Frontcam/PRIORITY_%s.h264" %(dest_file)
+                source = "/home/pi/Desktop/Result/Normal/%s.h264" % (namafile_frontcamera_previous)
+                destination = "/home/pi/Desktop/Result/Priority/PRIORITY_%s.h264" %(dest_file)
                 copyfile(source,destination)
                 copycurrentfile=0
             if (copyforwardfile==1):
@@ -191,7 +156,7 @@ if __name__ == '__main__':
                 copyforwardfile=0
                            
         #Trigger perekaman file prioritas apabila button ditekan atau pembacaan akselerasi melebihi 1g
-        if ((inputButton==False) and ((temptime-temptime2)>3)) or (abs(accel.array_x[arraycount]-accel.array_x[arraycount-1])>2) or (abs(accel.array_y[arraycount]-accel.array_y[arraycount-1])>2) or (abs(accel.array_z[arraycount]-accel.array_z[arraycount-1])>2):
+        if ((inputValue==False) and ((temptime-temptime2)>3)) or (abs(accel.array_x[arraycount]-accel.array_x[arraycount-1])>2) or (abs(accel.array_y[arraycount]-accel.array_y[arraycount-1])>2) or (abs(accel.array_z[arraycount]-accel.array_z[arraycount-1])>2):
             priority_status=1
             
             # LED ON
@@ -199,13 +164,13 @@ if __name__ == '__main__':
             
             k=0
             #Penulisan file prioritas
-            namafile_priority_accel="/home/pi/Desktop/Result/Priority/Accel/PRIORITY_accelero_%s.txt" %(localtime)
-            namafile_priority_obd="/home/pi/Desktop/Result/Priority/OBD/PRIORITY_obd_%s .txt" % (localtime)
-            namafile_priority_gps="/home/pi/Desktop/Result/Priority/GPS/PRIORITY_gps_%s.txt" %(localtime)
+            namafile_accel_priority="/home/pi/Desktop/Result/Priority/PRIORITY_accelero_%s.txt" %(localtime)
+            namafile_priority_obd="/home/pi/Desktop/Result/Priority/PRIORITY_obd_%s .txt" % (localtime)
+            namafile_priority_gps="/home/pi/Desktop/Result/Priority/PRIORITY_gps_%s.txt" %(localtime)
             file_priority_accel=open(namafile_priority,"w")
             file_priority_obd=open(namafile_priority_obd,"w")
             file_priority_gps=open(namafile_priority_gps,"w")
-            if ((inputButton==False) and ((temptime-temptime2)>3)):
+            if ((inputValue==False) and ((temptime-temptime2)>3)):
                 file_priority_accel.write("Button pressed at %s\n" %(localtime))
                 file_priority_obd.write("Button pressed at %s\n" %(localtime))
                 file_priority_gps.write("Button pressed at %s\n" %(localtime))
@@ -228,8 +193,8 @@ if __name__ == '__main__':
             
             if ((camtime-camtime_init)<20):
                 dest_file = namafile_frontcamera_previous
-                source = "/home/pi/Desktop/Result/Normal/Frontcam/%s.h264" % (namafile_frontcamera_previous)
-                destination = "/home/pi/Desktop/Result/Priority/Frontcam/PRIORITY_%s.h264" %(dest_file)
+                source = "/home/pi/Desktop/Result/Normal/%s.h264" % (namafile_frontcamera_previous)
+                destination = "/home/pi/Desktop/Result/Priority/PRIORITY_%s.h264" %(dest_file)
                 copyfile(source,destination)
                 copycurrentfile=1
             elif ((camtime-camtime_init)>=20) and ((camtime-camtime_init)<40) :
@@ -237,8 +202,9 @@ if __name__ == '__main__':
             else:
                 copycurrentfile=1
                 copynextfile=1
-        
+                
         arraycountgps=arraycountgps+1
         arraycount=arraycount+1
         #time.sleep(0.1)
         #camera.wait_recording(0.1)
+

@@ -85,11 +85,15 @@ class Accel(object):
     def driver_behavior_accel(self,counter):
         x_now = self.array_x[counter]
         y_now = self.array_y[counter] 
-        self.resultan = sqrt((x_now*x_now)+(y_now*y_now))
+        self.resultan = math.sqrt((x_now*x_now)+(y_now*y_now))
         if (self.resultan-self.resultan_before)>0.33:
             print("Aggresive Start")
-        elsif (self.resultan-self.resultan_before)<-0.5:
+            self.condition_accel = "Aggresive Start"
+        elif (self.resultan-self.resultan_before)<-0.5:
             print("Hard Braking")
+            self.condition_accel = "Hard Braking"
+        else:
+            self.condition_accel = ""
       
         self.resultan_before = self.resultan
         

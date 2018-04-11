@@ -7,11 +7,11 @@ import obd
 
 class Obd(object):
 	def __init__(self) :
-    		self.array_rpm = [''] * 300
-		self.array_speed = [''] * 300
-		self.array_throttle = [''] * 300
-		self.array_load = [''] * 300
-		self.array_coolant = [''] * 300
+    		self.array_rpm = [0] * 300
+		self.array_speed = [0] * 300
+		self.array_throttle = [0] * 300
+		self.array_load = [0] * 300
+		self.array_coolant = [0] * 300
 		self.connection = obd.OBD()
 		self.rpm_before = 0
 		self.throttle_before = 0
@@ -30,17 +30,17 @@ class Obd(object):
     		self.load = self.connection.query(cmd4)
     		self.coolant = self.connection.query(cmd5)
     
-    		self.array_rpm[counter]=self.rpm.value.to("rpm")
-    		self.array_speed[counter]=self.speed.value.to("kph")
-    		self.array_throttle[counter]=self.throttle.value.to("percent")
-    		self.array_load[counter]=self.load.value.to("percent")
-    		self.array_coolant[counter]=self.coolant.value.to("celsius")
+    		self.array_rpm[counter]=self.rpm.value.magnitude
+    		self.array_speed[counter]=self.speed.value.magnitude
+    		self.array_throttle[counter]=self.throttle
+    		self.array_load[counter]=self.load
+    		self.array_coolant[counter]=self.coolant
 	
 	def driver_category(self, counter) :		
 		#Develop initial variable
-		self.array_rpm[counter] = rpm_now
-		self.array_speed[counter] = speed_now
-		self.array_throttle[counter] = throttle_now
+		rpm_now = self.array_rpm[counter]
+		speed_now = self.array_speed[counter] 
+		throttle_now = self.array_throttle[counter]
 		
 		#Calculation process for further categorization
 		rpm_change = abs(rpm_now - self.rpm_before)
@@ -49,39 +49,50 @@ class Obd(object):
 		ratio_throttle_rpm = (throttle_change/max(self.array_throttle))/(rpm_change/max(self.array_rpm))
 										 
 		#Decide between good or bad driver
-		if (ratio_speed_rpm > 0.9) and (ratio_speed_rpm < 1.3) and (ratio_throttle_rpm > 0.9) and (ratio_throttle_rpm < 1.3) and (load > 20) and (load < 50):
-			print('Good Driver')
-		else:
-			print('Bad Driver')
+		#if (ratio_speed_rpm > 0.9) and (ratio_speed_rpm < 1.3) and (ratio_throttle_rpm > 0.9) and (ratio_throttle_rpm < 1.3) and (load > 20) and (load < 50):
+		#	print('Good Driver')
+		#else:
+		#	print('Bad Driver')
 		
 		#After process configuration
-		self.rpm_before = rpm_now
-		self.throttle_before = throttle_now
+		#self.rpm_before = rpm_now
+		#self.throttle_before = throttle_now
 	
-	def driver_behavior(self, counter) :
+	def driver_behavior_obd(self, counter) :
 		#Develop initial variable
-		self.array_speed[counter] = speed_now
-		self.array_rpm[counter] = rpm_now
-		
+		speed_now = self.array_speed[counter]
+                rpm_now = self.array_rpm[counter]
+    	
 		#Overspeed
 		if (speed_now > 100):
-			self.counter_speed = self.counter_speed + 1
+		    self.counter_speed = self.counter_speed + 1
 		else:
-			self.counter_speed = 0
+		    self.counter_speed = 0
 		if (self.counter_speed == 50):
-			print("Overspeed")
+		    print("Overspeed")
+		    self.condition_speed = "Overspeed"
+		else:
+                    self.condition_speed = ""
 		
 		#High RPM
-		if (rpm_now > 4000):
-			print("High RPM")
+		print(rpm_now)
+		if (rpm_now > 1000):
+		    print("High RPM")
+		    self.condition_rpm = "High RPM"
+		else:
+                    self.condition_rpm = ""
 		
 		#Idle time
 		if (speed_now == 0):
-			self.counter_speed = self.counter_speed + 1
+		    self.counter_speed = self.counter_speed + 1
 		else:
-			self.counter_speed = 0
+		    self.counter_speed = 0
 		if (self.counter_speed == 3000):
-			print("Idle")
+                    print("Idle")
+		    self.condition_idle = "Idle"
+		else:
+                    self.condition_idle = ""
+			
 		
 	
 	def write_data(self, file, localtime) :
