@@ -120,11 +120,11 @@ class Gps(object):
 	    pass
 		
 	if ((self.gprmc_status == 1) and (self.gpgga_status == 1 )):
-	    gps_tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
+	    '''gps_tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
 	    tz = timezone(gps_tz)
 	    gps_datetime_aware = self.datetime.replace(tzinfo=utc)
 	    gps_datetime_local = gps_datetime_aware.astimezone(tz)
-	    self.datetime = gps_datetime_local.strftime('%Y-u%m-%d %H:%M:%S.%f')[:-4]
+	    self.datetime = gps_datetime_local.strftime('%Y-u%m-%d %H:%M:%S.%f')[:-4]'''
 	    
 	    datalist = []
 	    datalist.append(str(self.datetime))

@@ -93,15 +93,16 @@ if __name__ == '__main__':
         temptime=time.time()
         camtime=time.time()
         inputButton=GPIO.input(16)
+        #inputButton = False
         inputRelay=GPIO.input(11)
         
         if (arraycount<300):
             accel.read_data(arraycount)
-            obd.read_data(arraycount)
+            obd.read_data(arraycount,inputRelay)
         else:
             arraycount=arraycount-300
             accel.read_data(arraycount)
-            obd.read_data(arraycount)
+            obd.read_data(arraycount,inputRelay)
                 
         if (arraycountgps<30):
             gps.read_data(arraycount)
@@ -122,7 +123,7 @@ if __name__ == '__main__':
         if (priority_status==1):
             accel.write_data(file_accel,localtime)
             obd.write_data(file_obd,localtime)
-            gps.write_data(file_gps,localtime)
+            gps.write_data(file_gps)
             
             accel.write_data(file_priority_accel,localtime)
             obd.write_data(file_priority_obd,localtime)
@@ -161,7 +162,7 @@ if __name__ == '__main__':
             file_obd.close()
             file_gps.close()
             #counter=counter+1
-            namafile_accel="/home/pi/Desktop/Result/Normal/Accel/accelero_%s.txt" % (localtime)
+            namafile_accel="/home/pi/Desktop/Result/Normal/Accelero/accelero_%s.txt" % (localtime)
             namafile_obd="/home/pi/Desktop/Result/Normal/OBD/obd_%s .txt" % (localtime)
             namafile_gps="/home/pi/Desktop/Result/Normal/GPS/gps_%s.txt" % (localtime)
             
@@ -199,10 +200,10 @@ if __name__ == '__main__':
             
             k=0
             #Penulisan file prioritas
-            namafile_priority_accel="/home/pi/Desktop/Result/Priority/Accel/PRIORITY_accelero_%s.txt" %(localtime)
+            namafile_priority_accel="/home/pi/Desktop/Result/Priority/Accelero/PRIORITY_accelero_%s.txt" %(localtime)
             namafile_priority_obd="/home/pi/Desktop/Result/Priority/OBD/PRIORITY_obd_%s .txt" % (localtime)
             namafile_priority_gps="/home/pi/Desktop/Result/Priority/GPS/PRIORITY_gps_%s.txt" %(localtime)
-            file_priority_accel=open(namafile_priority,"w")
+            file_priority_accel=open(namafile_priority_accel,"w")
             file_priority_obd=open(namafile_priority_obd,"w")
             file_priority_gps=open(namafile_priority_gps,"w")
             if ((inputButton==False) and ((temptime-temptime2)>3)):
@@ -221,7 +222,7 @@ if __name__ == '__main__':
                 accel.write_array(file_priority_accel,arraycount-i,array_time[arraycount-i])
                 obd.write_array(file_priority_obd,arraycount-i,array_time[arraycount-i])
             for j in range (29, 0, -1):
-                gps.write_array(file_priority_gps,arraycountgps-i,array_time[arraycount-i])
+                gps.write_array(file_priority_gps,arraycountgps-i)
                 
             print("Button press")
             temptime2=time.time()

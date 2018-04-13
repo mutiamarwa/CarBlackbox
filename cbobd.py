@@ -16,25 +16,39 @@ class Obd(object):
 		self.rpm_before = 0
 		self.throttle_before = 0
     
-	def read_data(self,counter) :
-    		#Assign variables for each of the OBD data
-  	  	cmd1 = obd.commands.RPM
-    		cmd2 = obd.commands.SPEED
-    		cmd3 = obd.commands.THROTTLE_POS
-    		cmd4 = obd.commands.ENGINE_LOAD
-    		cmd5 = obd.commands.COOLANT_TEMP
-	
-    		self.rpm = self.connection.query(cmd1)
-    		self.speed = self.connection.query(cmd2)
-    		self.throttle = self.connection.query(cmd3)
-    		self.load = self.connection.query(cmd4)
-    		self.coolant = self.connection.query(cmd5)
-    
-    		self.array_rpm[counter]=self.rpm.value.magnitude
-    		self.array_speed[counter]=self.speed.value.magnitude
-    		self.array_throttle[counter]=self.throttle
-    		self.array_load[counter]=self.load
-    		self.array_coolant[counter]=self.coolant
+	def read_data(self,counter,inputRelay) :
+    		if (inputRelay == False): #Normal
+                    #Assign variables for each of the OBD data
+                    cmd1 = obd.commands.RPM
+                    cmd2 = obd.commands.SPEED
+                    cmd3 = obd.commands.THROTTLE_POS
+                    cmd4 = obd.commands.ENGINE_LOAD
+                    cmd5 = obd.commands.COOLANT_TEMP
+            
+                    self.rpm = self.connection.query(cmd1)
+                    self.speed = self.connection.query(cmd2)
+                    self.throttle = self.connection.query(cmd3)
+                    self.load = self.connection.query(cmd4)
+                    self.coolant = self.connection.query(cmd5)
+        
+                    self.array_rpm[counter]=self.rpm.value.magnitude
+                    self.array_speed[counter]=self.speed.value.magnitude
+                    self.array_throttle[counter]=self.throttle
+                    self.array_load[counter]=self.load
+                    self.array_coolant[counter]=self.coolant
+                
+                else: #Mobil mati
+                    self.rpm.value=0
+                    self.speed.value=0
+                    self.throttle.value=0
+                    self.load.value=0
+                    self.coolant.value=0
+                    
+                    self.array_rpm[counter]=0
+                    self.array_speed[counter]=0
+                    self.array_throttle[counter]=0
+                    self.array_load[counter]=0
+                    self.array_coolant[counter]=0
 	
 	def driver_category(self, counter) :		
 		#Develop initial variable

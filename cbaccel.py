@@ -76,11 +76,11 @@ class Accel(object):
         #Writing process
         file.write(localtime)
         file.write("\tX: ")
-        file.write("%.5f\t"  % self.array_x[Counter])
+        file.write("%.5f\t"  % self.array_x[counter])
         file.write("Y: ")
-        file.write("%.5f\t"  % self.array_x[Counter])
+        file.write("%.5f\t"  % self.array_x[counter])
         file.write("Z: ")
-        file.write("%.5f\n"  % self.array_x[Counter])
+        file.write("%.5f\n"  % self.array_x[counter])
         
     def driver_behavior_accel(self,counter):
         x_now = self.array_x[counter]
