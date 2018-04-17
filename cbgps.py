@@ -84,7 +84,7 @@ class Gps(object):
 	self.data = self.serialcom.readline()
 	if (self.data.startswith("$GPRMC")) :
 	    msg = pynmea2.parse(self.data)
-	    gps_datetime = msg.datetime
+	    gps_dateandtime = msg.datetime
 	    gprmcok = msg.is_valid
 	    if (gprmcok == 1):
 		gps_lat = round(msg.latitude,5)
@@ -93,8 +93,8 @@ class Gps(object):
 		tz = timezone(gps_tz)
 		gps_datetime_aware = self.datetime.replace(tzinfo=utc)
 		gps_datetime_local = gps_datetime_aware.astimezone(tz)
-		self.datetime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
-		return self.datetime
+		self.dateandtime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
+		return self.dateandtime
 
     def read_data(self,counter) :
 	#Pembacaan data GPS
@@ -104,7 +104,7 @@ class Gps(object):
 	if (self.data.startswith("$GPRMC")):
 	    msggps = pynmea2.parse(self.data)
 	    #print repr(msg)
-	    self.datetime = msggps.datetime
+	    self.datetandime = msggps.datetime
 	    self.lat = round(msggps.latitude,5)
 	    self.lon = round(msggps.longitude,5)
 	    #self.tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
@@ -122,12 +122,12 @@ class Gps(object):
 	if ((self.gprmc_status == 1) and (self.gpgga_status == 1 )):
 	    '''gps_tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
 	    tz = timezone(gps_tz)
-	    gps_datetime_aware = self.datetime.replace(tzinfo=utc)
+	    gps_datetime_aware = self.dateandtime.replace(tzinfo=utc)
 	    gps_datetime_local = gps_datetime_aware.astimezone(tz)
-	    self.datetime = gps_datetime_local.strftime('%Y-u%m-%d %H:%M:%S.%f')[:-4]'''
+	    self.dateandtime = gps_datetime_local.strftime('%Y-u%m-%d %H:%M:%S.%f')[:-4]'''
 	    
 	    datalist = []
-	    datalist.append(str(self.datetime))
+	    datalist.append(str(self.dateandtime))
 	    #self.datalistgps.append(localtime)
 	    #self.datalistgps.append(str(gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]))
 	    #datalist.append(str(gps_tz))
