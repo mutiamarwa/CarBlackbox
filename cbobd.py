@@ -7,7 +7,8 @@ import obd
 
 class Obd(object):
 	def __init__(self) :
-    		self.array_rpm = [0] * 300
+		self.status = 0
+		self.array_rpm = [0] * 300
 		self.array_speed = [0] * 300
 		self.array_throttle = [0] * 300
 		self.array_load = [0] * 300
@@ -17,7 +18,7 @@ class Obd(object):
 		self.throttle_before = 0
     
 	def read_data(self,counter,inputRelay) :
-    		if (inputRelay == False): #Normal
+    		if (self.status == 0) or (inputRelay == False): #Normal
                     #Assign variables for each of the OBD data
                     cmd1 = obd.commands.RPM
                     cmd2 = obd.commands.SPEED
