@@ -38,17 +38,18 @@ class Gps(object):
                                        stopbits=1,
                                        timeout=0.5,
                                        rtscts=0)
-        self.gprmc_status = 0
-	self.gpgga_status = 0
-	self.lat = 0
-	self.lon = 0
-	self.dataline = ''
-	self.tf = TimezoneFinder()
-	self.tzinfo = utc
-	
-	duration = 60/2 #minutes
-	rate_gps = 10
-	self.array_dataline=[''] * duration * rate_gps
+        self.status = 0
+		self.gprmc_status = 0
+		self.gpgga_status = 0
+		self.lat = 0
+		self.lon = 0
+		self.dataline = ''
+		self.tf = TimezoneFinder()
+		self.tzinfo = utc
+		
+		duration = 60/2 #minutes
+		rate_gps = 10
+		self.array_dataline=[''] * duration * rate_gps
 	
     #configurasi gps ublox
     def config_ublox(self) :
@@ -57,44 +58,48 @@ class Gps(object):
         baud57600 = b'\xB5\x62\x06\x00\x14\x00\x01\x00\x00\x00\xD0\x08\x00\x00\x00\xE1\x00\x00\x07\x00\x07\x00\x00\x00\x00\x00\xE2\xE1\xB5\x62\x06\x00\x01\x00\x01\x08\x22'
         baud115200 = b'\xB5\x62\x06\x00\x14\x00\x01\x00\x00\x00\xD0\x08\x00\x00\x00\xc2\x01\x00\x07\x00\x07\x00\x00\x00\x00\x00\xc4\x96\xb5\x62\x06\x00\x01\x00\x01\x08\x22'
 		
-	rate1hz = b'\xB5\x62\x06\x08\x06\x00\xE8\x03\x01\x00\x01\x00\x00\x00'
-	rate5hz = b'\xB5\x62\x06\x08\x06\x00\xC8\x00\x01\x00\x01\x00\x00\x00'
-	#rate10hz = b'\xB5\x62\x06\x08\x06\x00\x64\x00\x01\x00\x01\x00\x00\x00'
-	rate10hz = array.array('B',[0xB5,0x62,0x06,0x08,0x06,0x00,0x64,0x00,0x01,0x00,0x01,0x00,0x00,0x00]).tostring()
-	 
-	# Disabling all NMEA sentences
-	self.serialcom.write("$PUBX,40,GLL,0,0,0,0*5C\n")
-	self.serialcom.write("$PUBX,40,GSA,0,0,0,0*4E\n")
-	self.serialcom.write("$PUBX,40,GSV,0,0,0,0*59\n")
-	self.serialcom.write("$PUBX,40,VTG,0,0,0,0*5E\n")
-	
-	#Change rate and baudrate
-	self.serialcom.write(rate10hz.encode('utf-8'))
+		rate1hz = b'\xB5\x62\x06\x08\x06\x00\xE8\x03\x01\x00\x01\x00\x00\x00'
+		rate5hz = b'\xB5\x62\x06\x08\x06\x00\xC8\x00\x01\x00\x01\x00\x00\x00'
+		#rate10hz = b'\xB5\x62\x06\x08\x06\x00\x64\x00\x01\x00\x01\x00\x00\x00'
+		rate10hz = array.array('B',[0xB5,0x62,0x06,0x08,0x06,0x00,0x64,0x00,0x01,0x00,0x01,0x00,0x00,0x00]).tostring()
+		 
+		# Disabling all NMEA sentences
+		self.serialcom.write("$PUBX,40,GLL,0,0,0,0*5C\n")
+		self.serialcom.write("$PUBX,40,GSA,0,0,0,0*4E\n")
+		self.serialcom.write("$PUBX,40,GSV,0,0,0,0*59\n")
+		self.serialcom.write("$PUBX,40,VTG,0,0,0,0*5E\n")
+		
+		#Change rate and baudrate
+		self.serialcom.write(rate10hz.encode('utf-8'))
 
     def is_fix(self) :
-	self.data = self.serialcom.readline()
-	gpsfix = false
-	while (gpsfix == false) :
-	    if (self.data.startswith("$GPRMC")) :
-		msg = pynmea2.parse(self.data)
-		gpsfix = msg.is_valid
-		return gpsfix
+		self.data = self.serialcom.readline()
+		gpsfix = false
+		while (gpsfix == false) :
+			if (self.data.startswith("$GPRMC")) :
+			msg = pynmea2.parse(self.data)
+			gpsfix = msg.is_valid
+			return gpsfix
 		
     def read_datetime(self):
-	self.data = self.serialcom.readline()
-	if (self.data.startswith("$GPRMC")) :
-	    msg = pynmea2.parse(self.data)
-	    gps_dateandtime = msg.datetime
-	    gprmcok = msg.is_valid
-	    if (gprmcok == 1):
-		gps_lat = round(msg.latitude,5)
-		gps_lon = round(msg.longitude,5)
-		gps_tz = self.tf.timezone_at(lng = self.lon, lat = self.lat)
-		tz = timezone(gps_tz)
-		gps_datetime_aware = self.datetime.replace(tzinfo=utc)
-		gps_datetime_local = gps_datetime_aware.astimezone(tz)
-		self.dateandtime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
-		return self.dateandtime
+		if (self.status==0):
+			self.data = self.serialcom.readline()
+		else:
+			self.data = ""
+			
+		if (self.data.startswith("$GPRMC")) :
+			msg = pynmea2.parse(self.data)
+			gps_dateandtime = msg.datetime
+			gprmcok = msg.is_valid
+			if (gprmcok == 1):
+			gps_lat = round(msg.latitude,5)
+			gps_lon = round(msg.longitude,5)
+			gps_tz = self.tf.timezone_at(lng = self.lon, lat = self.lat)
+			tz = timezone(gps_tz)
+			gps_datetime_aware = self.datetime.replace(tzinfo=utc)
+			gps_datetime_local = gps_datetime_aware.astimezone(tz)
+			self.dateandtime = gps_datetime_local.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
+			return self.dateandtime
 
     def read_data(self,counter) :
 	#Pembacaan data GPS
@@ -111,15 +116,18 @@ class Gps(object):
 	    self.speed = msggps.spd_over_grnd
 	    self.course = msggps.true_course
 	    self.gprmc_status = msggps.is_valid
+	"""
 	elif self.data.startswith("$GPGGA"):
 	    msggps = pynmea2.parse(self.data)
 	    self.alt = msggps.altitude
 	    self.sats = msggps.num_sats
 	    self.gpgga_status = msggps.is_valid
+	"""
 	else:
 	    pass
 		
-	if ((self.gprmc_status == 1) and (self.gpgga_status == 1 )):
+	#if ((self.gprmc_status == 1) and (self.gpgga_status == 1 )):
+	if (self.gprmc_status == 1):
 	    '''gps_tz = self.tf.timezone_at(lng=self.lon, lat=self.lat)
 	    tz = timezone(gps_tz)
 	    gps_datetime_aware = self.dateandtime.replace(tzinfo=utc)

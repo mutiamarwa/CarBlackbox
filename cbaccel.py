@@ -9,6 +9,7 @@ import time
 class Accel(object):
     def __init__(self):
         #Power management for turning on the accelerometer
+		self.status=0
         self.power_mgmt_1 = 0x6b
         self.power_mgmt_2 = 0x6c
         self.bus = smbus.SMBus(1) # or bus = smbus.SMBus(1) for Revision 2 boards
@@ -43,9 +44,14 @@ class Accel(object):
 
     def read_data(self,counter) :	
         #Accelerometer data reading process
-        self.xraw = self.read_word_2c(0x3b)
-        self.yraw = self.read_word_2c(0x3d)
-        self.zraw = self.read_word_2c(0x3f)
+        if (self.status==0):
+			self.xraw = self.read_word_2c(0x3b)
+			self.yraw = self.read_word_2c(0x3d)
+			self.zraw = self.read_word_2c(0x3f)
+		else:
+			self.xraw = 0
+			self.yraw = 0
+			self.zraw = 0
             
         self.x_scaled = round((self.xraw / 4096.0), 5)
         self.y_scaled = round((self.yraw / 4096.0), 5)

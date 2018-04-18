@@ -7,6 +7,7 @@
 import math
 import time
 import datetime
+<<<<<<< HEAD
 import RPi.GPIO as GPIO
 import os
 from shutil import copyfile
@@ -276,3 +277,32 @@ if __name__ == '__main__':
         rearcamthread.start()
         mainthread.join()
         rearcamthread.join()
+=======
+from multiprocessing import Process, Value, Array
+import ctypes
+
+def f(n):
+	#print time.asctime(time.localtime(time.time()))
+	n.value = 1
+	#n.value = time.time()
+
+def g(n):
+	#print time.asctime(time.localtime(time.time()))
+	if n.value==0:
+		print ("on")
+	else:
+		print ("off")
+	#n.value = time.time()
+	
+if __name__ == '__main__':
+	num = Value(ctypes.c_int,0)
+    #arr = Array('i', range(10))
+	while (1):
+		p = Process(target=f, args=(num,))
+		q = Process(target=g, args=(num,))
+		q.start()
+		p.start()
+		q.join()
+		p.join()
+		print num.value
+>>>>>>> f86d3d4ddecdea5d1d7ae424d863401c9bbd3948
