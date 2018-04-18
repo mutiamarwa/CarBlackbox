@@ -19,11 +19,6 @@ from picamera import Color
 import thread
 
 def gpsthread(threadName):
-    global priority_status
-    global temptime
-    global temptime_init
-    
-    priority_status_previous=0
     gps=Gps()
     gps.config_ublox
     namafile_gps="/home/pi/Desktop/Result/Normal/gps_%s.txt" % (localtime)
@@ -54,7 +49,7 @@ def gpsthread(threadName):
             file_gps=open(namafile_gps,"w")
             file_gps.write("datetime,latitude,longitude,altitude,course,speed,sat\n")
         
-        if ((priority_status==1) and (priority_status_previous==0)):
+        if ((inputValue==False) and ((temptime-temptime2)>3)) or (abs(accel.array_x[arraycount]-accel.array_x[arraycount-1])>2) or (abs(accel.array_y[arraycount]-accel.array_y[arraycount-1])>2) or (abs(accel.array_z[arraycount]-accel.array_z[arraycount-1])>2):
             namafile_priority_gps="/home/pi/Desktop/Result/Priority/PRIORITY_gps_%s.txt" %(localtime)
             file_priority_gps=open(namafile_priority_gps,"w")
             if ((inputValue==False) and ((temptime-temptime2)>3)):
@@ -69,13 +64,9 @@ def gpsthread(threadName):
                 gps.write_array(file_priority_gps,arraycountgps-i,array_time[arraycount-i])
         
         arraycountgps=arraycountgps+1
-        time.sleep(1)
 
 
 def mainthread(threadName):
-    global priority_status
-    global temptime
-    global temptime_init
     #Setup GPIO
     accel=Accel()
     obd=Obd()
@@ -237,14 +228,13 @@ def mainthread(threadName):
                 
         
         arraycount=arraycount+1
-        time.sleep(0.1)
+        #time.sleep(0.1)
         #camera.wait_recording(0.1)
-        print("mainthread running..")
 
 if __name__ == '__main__':
     try:
-        thread.start_new_thread( mainthread, ("Thread-main", ) )
-        thread.start_new_thread( gpsthread, ("Thread-gps", ) )
+        thread.start_new_thread( mainthread, ("Thread-main") )
+        thread.start_new_thread( gpsthread, ("Thread-gps") )
     except:
         print "Error: unable to start thread"
 
